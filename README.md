@@ -17,6 +17,7 @@
   "cdpPort": 9338,
   "webPort": 32110,
   "cacheDirectory": "",
+  "codexPath": "",
   "ai": {
     "baseUrl": "",
     "model": "",
@@ -28,6 +29,14 @@
 `baseUrl` 为接口地址，`model` 为服务商提供的模型名称，`apiKey` 为使用者自己的密钥。填写后关闭背景，再重新打开。
 
 三个 AI 字段默认均为空。听歌、歌词效果和内置主题可直接使用；AI 主题在配置完成后启用。实际配置写入使用者自己的 `%LOCALAPPDATA%\CodexFolia\settings.json`，应用不会读取 Codex 的 `.env` 或代用其他应用的密钥。
+
+## 安装位置与启动修复
+
+Folia 与 Codex 可以安装在不同磁盘。启动器每次从 Windows 安装包清单、正在运行的 Codex 及程序注册信息查找实际入口，不绑定某个 Codex 版本目录或 `ChatGPT.exe` 文件名。
+
+桌面没有快捷方式时，运行 Folia 安装目录的 `Repair-Shortcuts.cmd`；它会重建并校验桌面和开始菜单入口。自动查找失败时，先正常打开一次 Codex 再重试，或运行 `Select-Codex.cmd` 重新选择 Codex 桌面程序；此选择保存在使用者自己的 `codexPath` 字段，默认留空。
+
+启动失败会显示失败阶段和具体错误，并在使用者自己的 `%LOCALAPPDATA%\CodexFolia\launcher-error.log` 保存提示。安装和修复说明见 [安装与启动](docs/INSTALLATION.md)。
 
 ## 功能
 

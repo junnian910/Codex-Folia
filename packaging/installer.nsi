@@ -9,7 +9,7 @@
 !ifndef OUTPUT
   !error "Pass /DOUTPUT=<installer path>"
 !endif
-!define PRODUCT_VERSION "0.1.15"
+!define PRODUCT_VERSION "0.1.16"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\CodexFolia"
 Name "Codex Folia"
 OutFile "${OUTPUT}"
@@ -18,7 +18,7 @@ InstallDirRegKey HKCU "${UNINSTALL_KEY}" "InstallLocation"
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
 SetCompressorDictSize 32
-VIProductVersion "0.1.15.0"
+VIProductVersion "0.1.16.0"
 VIAddVersionKey "ProductName" "Codex Folia"
 VIAddVersionKey "FileDescription" "Codex Folia Setup"
 VIAddVersionKey "FileVersion" "${PRODUCT_VERSION}"
@@ -72,19 +72,28 @@ FunctionEnd
 Section "Codex Folia" MainSection
   SetOutPath "$INSTDIR"
   SetOverwrite on
+  ClearErrors
   File /r "${PAYLOAD}\*.*"
+  ${If} ${Errors}
+    MessageBox MB_OK|MB_ICONSTOP "程序文件未能完整写入安装目录。请选择当前用户可写入的文件夹后重试。"
+    SetErrorLevel 1
+    Abort
+  ${EndIf}
   FileOpen $0 "$INSTDIR\codex-folia.install" w
   FileWrite $0 "Codex Folia ${PRODUCT_VERSION}$\r$\n"
   FileClose $0
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   ${If} $TestInstall != "1"
-    CreateDirectory "$SMPROGRAMS\Codex Folia"
-    CreateShortCut "$DESKTOP\Codex Folia 背景.lnk" "$WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "$INSTDIR\launch.ps1"'
-    CreateShortCut "$SMPROGRAMS\Codex Folia\Codex Folia.lnk" "$WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "$INSTDIR\launch.ps1"'
-    CreateShortCut "$SMPROGRAMS\Codex Folia\关闭背景.lnk" "$WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "$INSTDIR\launch.ps1" -Stop'
-    CreateShortCut "$SMPROGRAMS\Codex Folia\配置 AI.lnk" "$INSTDIR\Configure-AI.cmd"
-    CreateShortCut "$SMPROGRAMS\Codex Folia\使用说明.lnk" "$INSTDIR\README.md"
-    CreateShortCut "$SMPROGRAMS\Codex Folia\卸载.lnk" "$INSTDIR\Uninstall.exe"
+    ${DisableX64FSRedirection}
+    nsExec::ExecToStack '"$WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\Repair-Shortcuts.ps1" -NoUI'
+    ${EnableX64FSRedirection}
+    Pop $0
+    Pop $1
+    DetailPrint "$1"
+    ${If} $0 != "0"
+      MessageBox MB_OK|MB_ICONEXCLAMATION "程序已复制，但桌面或开始菜单快捷方式创建失败。请在安装目录运行 Repair-Shortcuts.cmd。$\r$\n$1"
+      SetErrorLevel 1
+    ${EndIf}
     WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayName" "Codex Folia"
     WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
     WriteRegStr HKCU "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
@@ -120,6 +129,8 @@ Section "Uninstall"
       Delete "$SMPROGRAMS\Codex Folia\Codex Folia.lnk"
       Delete "$SMPROGRAMS\Codex Folia\关闭背景.lnk"
       Delete "$SMPROGRAMS\Codex Folia\配置 AI.lnk"
+      Delete "$SMPROGRAMS\Codex Folia\重新选择 Codex.lnk"
+      Delete "$SMPROGRAMS\Codex Folia\修复快捷方式.lnk"
       Delete "$SMPROGRAMS\Codex Folia\使用说明.lnk"
       Delete "$SMPROGRAMS\Codex Folia\卸载.lnk"
       RMDir "$SMPROGRAMS\Codex Folia"

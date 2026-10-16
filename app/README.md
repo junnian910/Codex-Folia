@@ -1,10 +1,14 @@
-# Codex Folia 0.1.15
+# Codex Folia 0.1.16
 
 Windows 10/11 x64 的 Folia 播放器与 Codex 背景接入。
 
 ## 使用
 
 先安装官方 Windows 版 Codex，再安装 Codex Folia，从桌面 **Codex Folia 背景** 打开，使用自己的 Codex 和音乐账号登录。开始菜单提供打开、关闭背景、配置 AI、使用说明和卸载入口。
+
+Folia 与 Codex 可以安装在不同磁盘。程序会读取 Windows 安装清单、运行中的 Codex 和程序注册信息寻找入口，兼容入口位置或文件名随版本变化的情况。自动查找失败时可运行 `Select-Codex.cmd` 重新选择桌面程序。
+
+没有桌面快捷方式时，运行安装目录中的 `Repair-Shortcuts.cmd`；它会重建并校验桌面和开始菜单快捷方式。启动错误会显示具体阶段，并保存到自己的 `%LOCALAPPDATA%\CodexFolia\launcher-error.log`，日志不会公开上传。
 
 保留原版播放器、歌词动画、曲库、队列、主题及可用音效。右侧面板右下角可收起，点击当前歌曲卡片恢复。桌面布局入口与收起按钮在面板底部。
 

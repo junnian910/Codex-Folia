@@ -1,27 +1,36 @@
-﻿param([switch]$Stop,[switch]$ServiceOnly,[switch]$Validate,[switch]$InitializeOnly,[string]$SettingsPath='')
+﻿param([switch]$Stop,[switch]$ServiceOnly,[switch]$Validate,[switch]$InitializeOnly,[switch]$SelectCodex,[string]$SettingsPath='')
 $ErrorActionPreference='Stop'
+$launchStage='读取配置'
 # Public launcher: use only this application's settings, never another application's .env.
 trap {
-  $message=$_.Exception.Message
+  $message='启动失败（'+$launchStage+'）：'+$_.Exception.Message
+  try{
+    $errorRoot=if($runtimeRoot){$runtimeRoot}else{Join-Path $env:LOCALAPPDATA 'CodexFolia'}
+    New-Item -ItemType Directory -Path $errorRoot -Force|Out-Null
+    $errorLog=Join-Path $errorRoot 'launcher-error.log'
+    [IO.File]::WriteAllText($errorLog,((Get-Date).ToString('s')+"`r`n"+$message),[Text.UTF8Encoding]::new($false))
+    $message+="`r`n`r`n详细提示已保存：$errorLog"
+  }catch{}
   if(!$Validate -and !$InitializeOnly){Add-Type -AssemblyName System.Windows.Forms;[Windows.Forms.MessageBox]::Show($message,'Codex Folia')|Out-Null}
   [Console]::Error.WriteLine($message)
   exit 1
 }
 $root=$PSScriptRoot
+. (Join-Path $root 'windows-integration.ps1')
 $node=Join-Path $root 'runtime\node.exe'
 if(!(Test-Path -LiteralPath $node)){throw '缺少随附运行环境，请重新安装 Codex Folia。'}
 if(!$SettingsPath){$SettingsPath=Join-Path $env:LOCALAPPDATA 'CodexFolia\settings.json'}
 $SettingsPath=[IO.Path]::GetFullPath($SettingsPath)
 $runtimeRoot=Split-Path -Parent $SettingsPath
-$settings=@{cdpPort=9338;webPort=32110;cacheDirectory='';ai=@{baseUrl='';model='';apiKey=''}}
+$settings=@{cdpPort=9338;webPort=32110;cacheDirectory='';codexPath='';ai=@{baseUrl='';model='';apiKey=''}}
 if(Test-Path -LiteralPath $SettingsPath){
   $saved=Get-Content -LiteralPath $SettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
-  foreach($key in @('cdpPort','webPort','cacheDirectory','ai')){if($null -ne $saved.$key){$settings[$key]=$saved.$key}}
+  foreach($key in @('cdpPort','webPort','cacheDirectory','codexPath','ai')){if($null -ne $saved.$key){$settings[$key]=$saved.$key}}
 }
 $cdpPort=[int]$settings.cdpPort;$webPort=[int]$settings.webPort
 if($cdpPort -lt 1024 -or $cdpPort -gt 65535 -or $webPort -lt 1024 -or $webPort -gt 65535 -or $cdpPort -eq $webPort){throw 'settings.json 中的两个端口必须不同，且在 1024–65535 之间。'}
 if($Validate){
-  foreach($file in @('server.mjs','cdp.mjs','direct-network.mjs','renderer.js','storage-scope.js','embedded-network.js','widgets.js','direct-drag.js','lyric-layout.js','integration.css','vendor\api\generate-theme_openai.js','embedded\folia.js','embedded\folia-major.css')){
+  foreach($file in @('windows-integration.ps1','Repair-Shortcuts.ps1','server.mjs','cdp.mjs','direct-network.mjs','renderer.js','storage-scope.js','embedded-network.js','widgets.js','direct-drag.js','lyric-layout.js','integration.css','vendor\api\generate-theme_openai.js','embedded\folia.js','embedded\folia-major.css')){
     if(!(Test-Path -LiteralPath (Join-Path $root $file))){throw "缺少运行文件：$file"}
   }
   & $node --check (Join-Path $root 'server.mjs')
@@ -35,9 +44,33 @@ if(!(Test-Path -LiteralPath $SettingsPath)){
   [IO.File]::WriteAllText($SettingsPath,($settings|ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($false))
 }
 if($InitializeOnly){Write-Output 'Codex Folia settings initialized.';exit 0}
+if($SelectCodex){
+  $launchStage='选择 Codex 桌面程序'
+  $selected=Select-FoliaCodexExecutable
+  if($selected){$settings.codexPath=$selected;[IO.File]::WriteAllText($SettingsPath,($settings|ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($false));[Windows.Forms.MessageBox]::Show('Codex 位置已保存，请从桌面快捷方式重新打开。','Codex Folia')|Out-Null}
+  exit 0
+}
 if($Stop){
   [IO.File]::WriteAllText((Join-Path $runtimeRoot '.stop-request'),'stop')
   exit 0
+}
+
+$codexCandidates=@()
+if(!$ServiceOnly){
+  $launchStage='查找 Codex 桌面程序'
+  $codexCandidates=@(Find-FoliaCodexExecutables -PreferredPath ([string]$settings.codexPath))
+  if(!$codexCandidates.Count){
+    $selected=Select-FoliaCodexExecutable
+    if(!$selected){throw '未找到 Codex 桌面程序。请先安装官方 Codex，或运行安装目录中的 Select-Codex.cmd 重新选择其 EXE。'}
+    $settings.codexPath=$selected
+    [IO.File]::WriteAllText($SettingsPath,($settings|ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($false))
+    $codexCandidates=@($selected)
+  }
+  foreach($listener in @(Get-NetTCPConnection -State Listen -LocalPort $cdpPort -ErrorAction SilentlyContinue)){
+    $owner=Get-Process -Id $listener.OwningProcess -ErrorAction SilentlyContinue
+    if(!$owner -or (!(Test-FoliaCodexExecutable $owner.Path) -and $codexCandidates -notcontains $owner.Path)){throw "调试端口 $cdpPort 已被其他程序使用，请在 settings.json 修改 cdpPort。"}
+    $codexCandidates=@($owner.Path)+@($codexCandidates|Where-Object {$_ -ine $owner.Path})
+  }
 }
 
 # Separate generated backend identity and all logs from both the installation and other players.
@@ -53,14 +86,6 @@ $env:FOLIA_CODEX_AI_MODEL=[string]$settings.ai.model
 $env:FOLIA_CODEX_AI_KEY=[string]$settings.ai.apiKey
 $env:NO_PROXY='localhost,127.0.0.1,::1'
 
-$install=Get-AppxPackage -Name OpenAI.Codex | Where-Object {$_.SignatureKind -eq 'Store'} | Sort-Object Version -Descending | Select-Object -First 1
-if(!$install){throw '请先安装并登录官方 Windows 版 Codex，再打开 Codex Folia。'}
-$codexPath=Join-Path $install.InstallLocation 'app\ChatGPT.exe'
-if(!(Test-Path -LiteralPath $codexPath)){throw '未找到 Codex 主程序，请先修复官方 Codex 安装。'}
-foreach($listener in @(Get-NetTCPConnection -State Listen -LocalPort $cdpPort -ErrorAction SilentlyContinue)){
-  $owner=Get-Process -Id $listener.OwningProcess -ErrorAction SilentlyContinue
-  if($owner -and $owner.Path -ine $codexPath){throw "端口 $cdpPort 已被其他程序使用，请在 settings.json 修改 cdpPort。"}
-}
 $connection=& $node (Join-Path $root 'cdp.mjs') --probe $cdpPort | ConvertFrom-Json
 $debugReady=$connection.ready
 $hash=[Security.Cryptography.SHA256]::Create()
@@ -74,6 +99,7 @@ try{
   if(Get-NetTCPConnection -State Listen -LocalPort $webPort -ErrorAction SilentlyContinue){throw "端口 $webPort 已有其他服务。请先关闭其他 Folia 接入，或修改 settings.json 的 webPort。"}
 }
 if(!$serviceReady){
+  $launchStage='启动播放器服务'
   $stdout=Join-Path $runtimeRoot 'server.log';$stderr=Join-Path $runtimeRoot 'server-error.log'
   Start-Process -FilePath $node -ArgumentList ('"'+(Join-Path $root 'server.mjs')+'"') -WorkingDirectory $root -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr | Out-Null
   $deadline=(Get-Date).AddSeconds(15)
@@ -87,9 +113,19 @@ foreach($key in @('FOLIA_CODEX_AI_URL','FOLIA_CODEX_AI_MODEL','FOLIA_CODEX_AI_KE
 $env:TEMP=$previousTemp;$env:TMP=$previousTmp
 [IO.File]::WriteAllText((Join-Path $runtimeRoot '.enable-request'),'enable')
 if(!$ServiceOnly -and !$debugReady){
+  $launchStage='启动 Codex'
   $profile=Join-Path $runtimeRoot 'profile'
   New-Item -ItemType Directory -Path $profile -Force|Out-Null
-  Start-Process -FilePath $codexPath -ArgumentList @('--remote-debugging-address=127.0.0.1',"--remote-debugging-port=$cdpPort",('--user-data-dir="'+$profile+'"')) -WindowStyle Normal | Out-Null
+  $launchErrors=[Collections.Generic.List[string]]::new()
+  $codexStarted=$false
+  foreach($codexPath in $codexCandidates){
+    try{
+      Start-Process -FilePath $codexPath -WorkingDirectory (Split-Path -Parent $codexPath) -ArgumentList @('--remote-debugging-address=127.0.0.1',"--remote-debugging-port=$cdpPort",('--user-data-dir="'+$profile+'"')) -WindowStyle Normal -ErrorAction Stop|Out-Null
+      $codexStarted=$true;break
+    }catch{$launchErrors.Add($codexPath+'：'+$_.Exception.Message)}
+  }
+  if(!$codexStarted){throw ('无法访问或启动找到的 Codex 程序。可运行 Select-Codex.cmd 重新选择。'+"`r`n"+($launchErrors -join "`r`n"))}
+  $launchStage='连接 Codex 本机接口'
   $deadline=(Get-Date).AddSeconds(30)
   do{Start-Sleep -Milliseconds 500;$connection=& $node (Join-Path $root 'cdp.mjs') --probe $cdpPort | ConvertFrom-Json;$debugReady=$connection.ready}while(!$debugReady -and (Get-Date) -lt $deadline)
   if(!$debugReady){throw '背景服务已启动，但 Codex 窗口未就绪。请保存草稿并关闭 Codex，再从 Codex Folia 快捷方式重试。'}

@@ -37,7 +37,7 @@ if(!(Test-Path -LiteralPath $NsisPath)){throw 'Install NSIS 3 or pass -NsisPath 
 & (Join-Path $projectRoot 'packaging\Write-Manifest.ps1') -AppDirectory $appRoot
 & (Join-Path $appRoot 'launch.ps1') -Validate -SettingsPath (Join-Path $appRoot 'settings.example.json')
 if($LASTEXITCODE -ne 0){throw 'Runtime validation failed.'}
-$installer=Join-Path $OutputDirectory 'Codex-Folia-Setup-0.1.15-win-x64.exe'
+$installer=Join-Path $OutputDirectory 'Codex-Folia-Setup-0.1.16-win-x64.exe'
 & $NsisPath /V2 ('/DPAYLOAD='+$appRoot) ('/DOUTPUT='+$installer) (Join-Path $projectRoot 'packaging\installer.nsi')
 if($LASTEXITCODE -ne 0){throw 'Installer build failed.'}
 Get-FileHash -LiteralPath $installer -Algorithm SHA256 | Select-Object Hash,@{Name='File';Expression={Split-Path $_.Path -Leaf}}

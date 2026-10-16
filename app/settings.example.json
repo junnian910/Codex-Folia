@@ -2,6 +2,7 @@
   "cdpPort": 9338,
   "webPort": 32110,
   "cacheDirectory": "",
+  "codexPath": "",
   "ai": {
     "baseUrl": "",
     "model": "",
