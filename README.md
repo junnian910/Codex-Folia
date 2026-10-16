@@ -48,7 +48,7 @@
 | `app/` | 接入层源码、启动器、本地后端与空白配置样例 |
 | `packaging/` | Windows NSIS 安装器、运行环境准备和源码归档脚本 |
 | `scripts/` | GitHub 上传候选文件的隐私与体积检查 |
-| `docs/` | AI 配置、发布说明及检查结果 |
+| `docs/` | AI 配置及发布说明 |
 
 上游为 [chthollyphile/folia-major](https://github.com/chthollyphile/folia-major)，基线版本 0.7.19，提交 `a75748272c6dfa060edf4bbae709c49f0be8a68e`。上游 Git 历史未复制进本仓库。
 
@@ -66,7 +66,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1 -NsisPath "N
 node .\scripts\check-public.mjs
 ```
 
-此命令检查待提交源码中的敏感文件、常见凭据、AI 默认值和 GitHub 文件体积限制。`--check-local` 还会在本机内存中比对本地用户名、全局 Git 身份和 Codex `.env` 中的凭据；报告只包含文件名与问题类别，不记录被比对的内容。
+此命令检查待提交源码中的敏感文件、常见凭据、AI 默认值和 GitHub 文件体积限制。`--check-local` 还会在本机内存中比对本地用户名、全局 Git 身份和 Codex `.env` 中的凭据。生成的检查报告仅保存在本地，已由 `.gitignore` 排除，不提交到仓库或作为发布附件。
 
 ## 数据、更新与发布
 

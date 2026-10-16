@@ -10,6 +10,11 @@
 /work/
 /release-assets/
 
+# Local verification reports are not published.
+/docs/privacy-check.json
+/docs/installer-validation.json
+/docs/github-preparation.json
+
 # Credentials and personal runtime data
 **/.env*
 !**/.env.example
