@@ -1,0 +1,72 @@
+[
+  {
+    "name": "silent installer exits successfully",
+    "pass": true,
+    "detail": 0
+  },
+  {
+    "name": "installation and uninstaller exist",
+    "pass": true,
+    "detail": null
+  },
+  {
+    "name": "installed payload matches every manifest hash",
+    "pass": true,
+    "detail": {
+      "mismatches": 0,
+      "files": 6772
+    }
+  },
+  {
+    "name": "bundled runtime and Windows PowerShell 5 launcher work",
+    "pass": true,
+    "detail": null
+  },
+  {
+    "name": "isolated service starts from installed bundle",
+    "pass": true,
+    "detail": null
+  },
+  {
+    "name": "fresh settings do not inherit host AI credentials",
+    "pass": true,
+    "detail": null
+  },
+  {
+    "name": "isolated service uses direct networking",
+    "pass": true,
+    "detail": null
+  },
+  {
+    "name": "unconfigured AI returns an actionable response",
+    "pass": true,
+    "detail": 503
+  },
+  {
+    "name": "cache starts empty in isolated user directory",
+    "pass": true,
+    "detail": {
+      "count": 0
+    }
+  },
+  {
+    "name": "fresh local music backend becomes ready",
+    "pass": true,
+    "detail": "running"
+  },
+  {
+    "name": "isolated service stops successfully",
+    "pass": true,
+    "detail": null
+  },
+  {
+    "name": "uninstaller removes installed program files",
+    "pass": true,
+    "detail": null
+  },
+  {
+    "name": "uninstaller preserves separate user data",
+    "pass": true,
+    "detail": null
+  }
+]

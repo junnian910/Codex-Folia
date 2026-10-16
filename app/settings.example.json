@@ -1,0 +1,10 @@
+{
+  "cdpPort": 9338,
+  "webPort": 32110,
+  "cacheDirectory": "",
+  "ai": {
+    "baseUrl": "",
+    "model": "",
+    "apiKey": ""
+  }
+}

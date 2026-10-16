@@ -1,0 +1,63 @@
+/* Folia components inherit one palette, including Codex's conversation surfaces. */
+html[data-folia-codex]{--folia-base:#17191d;--folia-ink:#f1f2f5;--folia-muted:#a7adb8;--folia-accent:#b7bff4;--folia-panel:color-mix(in srgb,var(--folia-base) 94%,var(--folia-ink) 6%);--folia-border:color-mix(in srgb,var(--folia-ink) 15%,transparent);--color-text-primary:var(--folia-ink);--color-text-secondary:var(--folia-muted);--color-text-tertiary:var(--folia-muted);--color-token-text-primary:var(--folia-ink);--color-token-text-secondary:var(--folia-muted);--app-color-text-primary:var(--folia-ink);--app-color-text-secondary:var(--folia-muted);--app-color-text-foreground:var(--folia-ink);--app-color-text-foreground-secondary:var(--folia-muted);--color-surface:var(--folia-base);--color-surface-primary:var(--folia-base);--color-surface-secondary:var(--folia-panel);--color-surface-tertiary:var(--folia-panel);--color-surface-elevated:var(--folia-panel);--color-surface-elevated-secondary:var(--folia-panel);--app-color-background:var(--folia-base);--app-color-background-surface:var(--folia-base);--app-color-background-elevated-secondary:var(--folia-panel);--color-token-side-bar-background:var(--folia-panel);--color-token-main-surface-primary:transparent;--color-background-primary-solid:var(--folia-ink);--color-background-primary-soft-alpha:var(--folia-panel);--color-background-composer-action-bar:var(--folia-panel);--color-background-execution-output:var(--folia-panel);--color-chat-accent-blue:var(--folia-accent);--app-color-icon-accent:var(--folia-accent);background:var(--folia-base)!important;color:var(--folia-ink)}
+html[data-folia-codex] body{isolation:isolate;background:transparent!important}
+html[data-folia-codex] #root{position:relative;z-index:1}
+html[data-folia-codex] #root,html[data-folia-codex] [data-app-shell-main-surface],html[data-folia-codex] main[class*='_MainContentSurface_'],html[data-folia-codex] [class*='_MainContentViewport_'],html[data-folia-codex] .main-surface,html[data-folia-codex] aside.app-shell-left-panel,html[data-folia-codex] aside.app-shell-left-panel>*,html[data-folia-codex] header[class*='_Header_']{background:transparent!important}
+html[data-folia-codex] [class*='_ComposerLayoutRoot_']{background:transparent!important;--color-text-primary:#24252a;--color-token-text-primary:#24252a;--color-text-secondary:#65666c;--color-text-tertiary:#8a8b90;--color-token-text-secondary:#65666c;--app-color-text-foreground:#24252a;--app-color-text-foreground-secondary:#65666c;color:#24252a}
+html[data-folia-codex] [data-message-author-role='user']{background:color-mix(in srgb,var(--folia-accent) 12%,var(--folia-base))!important;color:var(--folia-ink)!important}
+html[data-folia-codex] [data-markdown-text-style='assistant-message']{text-shadow:0 1px 3px var(--folia-base)}
+#folia-codex-frame{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:0;pointer-events:none;background:transparent}
+.folia-widget{position:fixed;box-sizing:border-box;-webkit-app-region:no-drag;color:var(--folia-ink);font:13px/1.4 system-ui,sans-serif}
+.folia-widget [hidden],#folia-lyric-positioner[hidden],#folia-layout-controls[hidden]{display:none!important}
+.folia-widget button,#folia-layout-controls button{font:inherit;color:inherit;cursor:pointer;-webkit-app-region:no-drag}
+.folia-widget button:focus-visible,#folia-layout-controls :focus-visible{outline:2px solid var(--folia-accent);outline-offset:2px}
+.folia-widget-handle{position:absolute;z-index:3;display:grid;place-items:center;width:24px;height:24px;padding:0;border:1px solid var(--folia-border);border-radius:12px;color:var(--folia-ink);background:var(--folia-panel);cursor:grab!important;touch-action:none;user-select:none;opacity:.35;transition:opacity .15s}
+.folia-widget:hover .folia-widget-handle,.folia-widget:focus-within .folia-widget-handle{opacity:.9}
+#folia-panel-widget{right:20px;bottom:20px;z-index:2147483000;width:280px}
+#folia-panel-content{position:relative;overflow:hidden}
+#folia-panel-frame{position:absolute;inset:0;width:344px;border:0;transform-origin:0 0;background:transparent}
+#folia-song-card{display:flex;align-items:center;gap:10px;width:100%;height:68px;padding:8px 12px 8px 8px;background:var(--folia-panel);border:1px solid var(--folia-border);border-radius:17px;box-shadow:0 5px 24px #0002;text-align:left}
+#folia-song-card img{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--folia-border)}
+#folia-song-card span{display:block;min-width:0;flex:1}#folia-song-card strong,#folia-song-card small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#folia-song-card small{font-size:11px;color:var(--folia-muted);margin-top:3px}
+#folia-bar-widget{width:640px;z-index:2147482999}#folia-bar-frame{display:block;position:relative;width:100%;height:88px;border:0;background:transparent}
+#folia-app-window{left:320px;top:86px;width:min(1040px,calc(100vw - 64px));height:min(820px,calc(100vh - 128px));min-width:420px;min-height:340px;z-index:2147483003;resize:both;overflow:hidden;border-radius:18px;border:1px solid var(--folia-border);background:var(--folia-base);box-shadow:0 18px 64px #0005}
+#folia-app-window header{display:flex;align-items:center;justify-content:space-between;height:36px;padding:0 12px;box-sizing:border-box;border-bottom:1px solid var(--folia-border);cursor:grab;user-select:none;touch-action:none;background:var(--folia-panel)}
+#folia-app-window header button{display:grid;place-items:center;width:26px;height:26px;border:0;border-radius:8px;background:transparent}#folia-app-window header button:hover{background:var(--folia-border)}
+#folia-overlay-frame{display:block;width:100%;height:calc(100% - 36px);border:0;background:var(--folia-base)}
+#folia-lyric-positioner{position:fixed;z-index:2147483001;inset:36px 0 0;cursor:move;touch-action:none;user-select:none}
+#folia-lyric-outline{position:fixed;pointer-events:none;border:2px dashed var(--folia-accent);box-sizing:border-box;border-radius:8px}
+#folia-lyric-outline [data-resize]{position:absolute;pointer-events:auto;width:14px;height:14px;border:2px solid var(--folia-accent);background:var(--folia-panel);border-radius:4px}
+#folia-lyric-outline [data-resize="nw"]{left:-8px;top:-8px;cursor:nwse-resize}#folia-lyric-outline [data-resize="ne"]{right:-8px;top:-8px;cursor:nesw-resize}#folia-lyric-outline [data-resize="sw"]{left:-8px;bottom:-8px;cursor:nesw-resize}#folia-lyric-outline [data-resize="se"]{right:-8px;bottom:-8px;cursor:nwse-resize}
+#folia-lyric-outline [data-resize="n"]{left:50%;top:-8px;cursor:ns-resize}#folia-lyric-outline [data-resize="s"]{left:50%;bottom:-8px;cursor:ns-resize}#folia-lyric-outline [data-resize="e"]{right:-8px;top:50%;cursor:ew-resize}#folia-lyric-outline [data-resize="w"]{left:-8px;top:50%;cursor:ew-resize}
+#folia-layout-controls{position:fixed;z-index:2147483004;left:50%;bottom:28px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--folia-panel);color:var(--folia-ink);border:1px solid var(--folia-border);border-radius:13px;font:13px system-ui;box-shadow:0 6px 24px #0003;user-select:none}
+#folia-layout-controls button{border:0;background:var(--folia-border);border-radius:7px;padding:7px 10px;white-space:nowrap}#folia-layout-controls input{width:160px;accent-color:var(--folia-accent)}
+html[data-folia-editing] *,html[data-folia-editing] *::before,html[data-folia-editing] *::after{user-select:none!important;-webkit-user-select:none!important}
+@media(max-width:1000px){#folia-app-window{left:24px;width:calc(100vw - 48px)}#folia-panel-widget{right:12px;bottom:12px}#folia-layout-controls{gap:5px}#folia-layout-controls input{width:100px}}
+html[data-folia-codex] aside.app-shell-left-panel button,html[data-folia-codex] aside.app-shell-left-panel a{color:var(--folia-ink)!important}
+html[data-folia-codex] [class*='_ComposerLayoutRoot_'] [contenteditable='true']{color:#24252a!important}
+
+html[data-folia-codex] [class*='_ComposerLayoutBody_']{background:rgba(255,255,255,.96)!important;border-radius:22px!important;border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 24px #0002;color:#24252a}
+html[data-folia-codex] [class*='_ComposerLayoutBody_'] button:not(.bg-composer-primary),html[data-folia-codex] [class*='_ComposerLayoutBody_'] button:not(.bg-composer-primary) span{color:#65666c!important}
+html[data-folia-codex] [class*='_ComposerLayoutBody_'] button.bg-composer-primary{color:#fff!important}
+#folia-song-card{cursor:grab}
+.folia-widget[data-folia-dragging]{cursor:grabbing}
+/* Remove Codex's opaque composer scrim and header shadow, keeping the input surface itself. */
+html[data-folia-codex] #root .pointer-events-none.absolute.inset-x-0.bg-surface{background:transparent!important;background-image:none!important}
+html[data-folia-codex] header[class*='_Header_']{box-shadow:none!important;background-image:none!important}
+html[data-folia-codex] #root .pointer-events-none.absolute.inset-x-0[class*='from-surface']{background:transparent!important;box-shadow:none!important}
+html[data-folia-codex] #root [class*='_MainContentTopFade_']{background:transparent!important;box-shadow:none!important}
+html[data-folia-codex] [class*='_ComposerLayoutBody_'] button:not(.bg-composer-primary) svg{color:#4c4e55!important}
+html[data-folia-codex] [class*='_ComposerLayoutBody_'] [contenteditable='true'],html[data-folia-codex] [class*='_ComposerLayoutBody_'] [contenteditable='true'] *{color:#24252a!important;caret-color:#24252a!important;-webkit-text-fill-color:#24252a!important}
+html[data-folia-codex] [class*='_ComposerLayoutBody_'] [data-placeholder]::before{color:#777a83!important;opacity:1!important;-webkit-text-fill-color:#777a83!important}
+/* Every Folia page/dialog supplies its own surface; the host adds no second frame. */
+#folia-app-window{border:0;background:transparent;box-shadow:none}
+#folia-app-header{display:none!important}
+#folia-app-window[data-kind="page"] #folia-app-header{display:flex!important}
+#folia-app-window[data-kind="page"] #folia-overlay-frame{height:calc(100% - 36px)}
+#folia-overlay-frame{height:100%;background:transparent}
+#folia-return-chat{position:fixed;left:24px;top:44px;z-index:2147483004;padding:10px 16px;border-radius:12px;border:1px solid var(--folia-border);color:var(--folia-ink);background:var(--folia-panel);font:13px system-ui;cursor:pointer;-webkit-app-region:no-drag}
+#folia-return-chat[hidden]{display:none!important}
+html[data-folia-player] #root{visibility:hidden;pointer-events:none}
+html[data-folia-player] #folia-codex-frame{z-index:2147482990;background:var(--folia-base)}
+
+#folia-subtitle-frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent;pointer-events:none;z-index:2147482998}

@@ -1,0 +1,35 @@
+# Dependencies and generated programs
+**/node_modules/
+/app/embedded/
+/app/web/
+/app/runtime/
+/app/source/
+/app/package-manifest.json
+/packaging/uninstall-files.nsh
+/dist/
+/work/
+/release-assets/
+
+# Credentials and personal runtime data
+**/.env*
+!**/.env.example
+**/settings.json
+**/.dev-credentials/
+**/.codex/
+**/.agents/
+**/*.log
+/profile/
+/Cache/
+/backend-temp/
+/runtime-data/
+**/IndexedDB/
+**/Local Storage/
+**/Session Storage/
+**/Cookies
+**/Login Data
+**/Web Data
+**/anonymous_token
+**/xeapi_public_key
+**/backup-*/
+.DS_Store
+Thumbs.db

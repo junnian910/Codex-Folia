@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "workingFiles": 3170,
+  "stagedFiles": 3170,
+  "bytesScanned": 47078315,
+  "largestFile": {
+    "file": "source/folia/img/visualizer.png",
+    "bytes": 3645512
+  },
+  "checks": {
+    "localComparisonEnabled": true,
+    "personalDataMatches": 0,
+    "aiDefaultsEmpty": true,
+    "anonymousLocalGitAuthor": true
+  },
+  "commitCount": 0,
+  "remoteCount": 0,
+  "findings": []
+}
