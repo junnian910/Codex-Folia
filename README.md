@@ -2,31 +2,31 @@
 
 将 Folia 原版播放器、歌词动画和动态背景接入 Windows 版 Codex，保留聊天操作。
 
-本仓库仅提供完整源码。让你自己电脑上的 Codex 读取仓库并完成本地安装，运行环境和程序在本机准备。
+仓库包含完整源码和本地安装脚本，可由你电脑上的 Codex 完成安装。
 
 ## 让 Codex 安装到本机
 
 把仓库地址和下面这段话发给你的 Codex：
 
-> 请阅读这个仓库的 AGENTS.md 和 docs/INSTALLATION.md，从源码安装 Codex Folia 到本机。自动识别已安装的 Codex，复用本机 Node.js 24 和 npm；缺少环境时准备官方工具链。使用 Install-Local.ps1 安装到我选择的文件夹，并创建带 Folia 图标的桌面快捷方式。保留现有 Codex 窗口、账号、聊天记录和用户配置，不修改 WindowsApps 权限。AI 接口地址、模型和密钥留空供我填写。完成后检查快捷方式、图标、本地服务与 Codex 连接，说明实际结果；不要创建安装包或 Releases，不要上传检查报告和个人数据。
+> 请按照 docs/INSTALLATION.md 将 Codex Folia 安装到本机，自动识别已安装的 Codex，创建带 Folia 图标的桌面快捷方式，并启动验证背景和播放器。
 
 需要已安装的官方 Windows 版 Codex。你不必知道它的安装目录；Microsoft Store 版优先由 Windows 的应用启动接口打开。
 
 Codex 会运行类似命令：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-Local.ps1 -InstallDirectory "D:\Program Files\Codex Folia"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-Local.ps1 -InstallDirectory "D:\Program Files\Codex Folia" -Start
 ```
 
-Folia 与 Codex 可以安装在不同磁盘。首次安装需联网恢复依赖并构建播放器；本地安装不需要 NSIS。详细步骤见 [安装与启动](docs/INSTALLATION.md)。
+Folia 与 Codex 可以安装在不同磁盘。首次安装由本机 Codex 完成依赖准备与播放器构建。详细步骤见 [安装与启动](docs/INSTALLATION.md)。
 
 ## 桌面图标与启动
 
-安装后使用桌面 **Codex Folia 背景**。图标来自程序目录内的 `folia.ico`，不会指向某个 Codex 版本的 EXE。
+安装后，双击桌面带 Folia 图标的 **Codex Folia 背景**，即可自动启动背景服务并打开带播放器的 Codex。图标来自程序目录内的 `folia.ico`，快捷方式直接调用启动脚本。
 
 没有快捷方式时，在本机程序目录运行 `Repair-Shortcuts.cmd`。Store 版会自动使用 Windows 登记的应用入口；只有非标准的未打包版本才可能需要 `Select-Codex.cmd` 手动指定桌面程序。
 
-启动失败会显示具体阶段，提示保存在使用者自己的 `%LOCALAPPDATA%\CodexFolia\launcher-error.log`。让本机 Codex 检查这个提示，不需要修改受保护安装目录的权限。
+启动失败会显示具体阶段，详细提示保存在 `%LOCALAPPDATA%\CodexFolia\launcher-error.log`，可交给本机 Codex 排查。
 
 ## AI 接口由使用者配置
 
@@ -40,7 +40,7 @@ Folia 与 Codex 可以安装在不同磁盘。首次安装需联网恢复依赖�
 }
 ```
 
-三个字段默认均为空。配置保存在使用者自己的 `%LOCALAPPDATA%\CodexFolia\settings.json`；程序不读取 Codex 的 `.env`。未配置 AI 时仍可听歌、使用原生效果和内置主题。见 [AI 配置](docs/AI-CONFIGURATION.md)。
+三个字段默认均为空，配置保存在 `%LOCALAPPDATA%\CodexFolia\settings.json`。未配置 AI 时仍可听歌、使用原生效果和内置主题。见 [AI 配置](docs/AI-CONFIGURATION.md)。
 
 ## 功能
 
@@ -63,9 +63,7 @@ Folia 与 Codex 可以安装在不同磁盘。首次安装需联网恢复依赖�
 | `app/` | 接入脚本、启动器、本地图标及空白配置样例 |
 | `packaging/` | 运行环境准备、源码归档与历史打包工具 |
 | `scripts/` | 本地检查和 Windows 集成测试 |
-| `docs/` | 安装、AI 配置和源码发布说明 |
-
-检查报告只保存在本地，由 `.gitignore` 排除。账号、密钥、登录、日志和缓存不进入源码仓库。见 [发布约定](docs/PUBLISHING.md)。
+| `docs/` | 安装与 AI 配置说明 |
 
 ## 数据与更新
 
