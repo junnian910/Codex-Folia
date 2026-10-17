@@ -30,7 +30,7 @@ if(Test-Path -LiteralPath $SettingsPath){
 $cdpPort=[int]$settings.cdpPort;$webPort=[int]$settings.webPort
 if($cdpPort -lt 1024 -or $cdpPort -gt 65535 -or $webPort -lt 1024 -or $webPort -gt 65535 -or $cdpPort -eq $webPort){throw 'settings.json 中的两个端口必须不同，且在 1024–65535 之间。'}
 if($Validate){
-  foreach($file in @('windows-integration.ps1','Repair-Shortcuts.ps1','server.mjs','cdp.mjs','direct-network.mjs','renderer.js','storage-scope.js','embedded-network.js','widgets.js','direct-drag.js','lyric-layout.js','integration.css','vendor\api\generate-theme_openai.js','embedded\folia.js','embedded\folia-major.css')){
+  foreach($file in @('folia.ico','windows-integration.ps1','Repair-Shortcuts.ps1','server.mjs','cdp.mjs','direct-network.mjs','renderer.js','storage-scope.js','embedded-network.js','widgets.js','direct-drag.js','lyric-layout.js','integration.css','vendor\api\generate-theme_openai.js','embedded\folia.js','embedded\folia-major.css')){
     if(!(Test-Path -LiteralPath (Join-Path $root $file))){throw "缺少运行文件：$file"}
   }
   & $node --check (Join-Path $root 'server.mjs')
@@ -56,10 +56,12 @@ if($Stop){
 }
 
 $codexCandidates=@()
+$codexAppIds=@()
 if(!$ServiceOnly){
   $launchStage='查找 Codex 桌面程序'
+  $codexAppIds=@(Get-FoliaCodexAppIds)
   $codexCandidates=@(Find-FoliaCodexExecutables -PreferredPath ([string]$settings.codexPath))
-  if(!$codexCandidates.Count){
+  if(!$codexCandidates.Count -and !$codexAppIds.Count){
     $selected=Select-FoliaCodexExecutable
     if(!$selected){throw '未找到 Codex 桌面程序。请先安装官方 Codex，或运行安装目录中的 Select-Codex.cmd 重新选择其 EXE。'}
     $settings.codexPath=$selected
@@ -116,15 +118,8 @@ if(!$ServiceOnly -and !$debugReady){
   $launchStage='启动 Codex'
   $profile=Join-Path $runtimeRoot 'profile'
   New-Item -ItemType Directory -Path $profile -Force|Out-Null
-  $launchErrors=[Collections.Generic.List[string]]::new()
-  $codexStarted=$false
-  foreach($codexPath in $codexCandidates){
-    try{
-      Start-Process -FilePath $codexPath -WorkingDirectory (Split-Path -Parent $codexPath) -ArgumentList @('--remote-debugging-address=127.0.0.1',"--remote-debugging-port=$cdpPort",('--user-data-dir="'+$profile+'"')) -WindowStyle Normal -ErrorAction Stop|Out-Null
-      $codexStarted=$true;break
-    }catch{$launchErrors.Add($codexPath+'：'+$_.Exception.Message)}
-  }
-  if(!$codexStarted){throw ('无法访问或启动找到的 Codex 程序。可运行 Select-Codex.cmd 重新选择。'+"`r`n"+($launchErrors -join "`r`n"))}
+  $codexArguments='--remote-debugging-address=127.0.0.1 --remote-debugging-port='+$cdpPort+' --user-data-dir="'+$profile+'"'
+  Start-FoliaCodexApplication -AppIds $codexAppIds -ExecutablePaths $codexCandidates -Arguments $codexArguments|Out-Null
   $launchStage='连接 Codex 本机接口'
   $deadline=(Get-Date).AddSeconds(30)
   do{Start-Sleep -Milliseconds 500;$connection=& $node (Join-Path $root 'cdp.mjs') --probe $cdpPort | ConvertFrom-Json;$debugReady=$connection.ready}while(!$debugReady -and (Get-Date) -lt $deadline)

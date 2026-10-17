@@ -1,15 +1,12 @@
-# GitHub 发布说明
+# 源码发布约定
 
-源码已展开在 `source/folia/`，接入源码在 `app/`，构建与安装脚本也随仓库提供。第三方依赖由锁文件恢复，固定 Node.js 运行环境由构建脚本准备。
+本仓库仅发布完整源码，使用者由自己电脑上的 Codex 安装到本地。
 
-1. 运行 `node scripts/check-public.mjs --check-local`，检查上传候选文件。
-2. 查看 `git diff --cached --stat`，核对实际暂存的源码和文档。
-3. 使用不含个人姓名和邮箱的 Git 作者配置提交。本项目未复制原工作目录的 Git 历史。
-4. 选择用于发布的 GitHub 账号和仓库，然后推送源码。
-5. Releases 仅上传安装器 EXE、完整源码 ZIP 和安装说明。哈希校验文件、隐私报告和安装检查 JSON 仅留本地。
+- 不创建或上传安装 EXE、Releases、校验码附件或检查报告 JSON。
+- `node scripts/check-public.mjs --check-local` 的输出和报告只留本机。
+- 提交前核对源码内容与 Git 作者，避免个人姓名、邮箱、真实配置、密钥、日志、登录数据或缓存进入仓库。
+- 应用运行和构建必需的 JSON 配置、锁文件及空白样例继续保留。
+- 运行环境、依赖和构建资源由本机准备，不提交二进制运行环境或用户数据。
+- 保留完整对应源码、许可和上游署名。历史打包工具供开发参考，不能据此重新发布安装器。
 
-GitHub 普通仓库阻止大于 100 MiB 的单个文件；安装包通过 Releases 分发。官方说明：https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github
-
-`.gitignore` 已排除依赖、Node.js 二进制、播放器构建资源、安装包、真实配置、密钥文件、日志、登录数据和生成的检查报告。应用运行和构建必需的 JSON 配置继续保留。上游合法版权和许可证保留。
-
-文件内容和提交作者可脱敏；GitHub 仓库仍会显示发布账号。请由发布者选择公开使用的账号身份。
+文件与提交作者可脱敏，公开仓库仍会显示发布账号。

@@ -1,8 +1,9 @@
-﻿$ErrorActionPreference='Stop'
+﻿param([string]$DestinationPath='')
+$ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.IO.Compression
 # Only source files enter the installed corresponding-source archive.
 $sourceRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\source\folia'))
-$destination=Join-Path $PSScriptRoot '..\app\source\folia-source.zip'
+$destination=if($DestinationPath){[IO.Path]::GetFullPath($DestinationPath)}else{Join-Path $PSScriptRoot '..\app\source\folia-source.zip'}
 New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force|Out-Null
 $paths=$null
 if(Get-Command git -ErrorAction SilentlyContinue){

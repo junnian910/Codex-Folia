@@ -1,90 +1,78 @@
 # Codex Folia
 
-将 Folia 的原版播放器、歌词动画和动态背景嵌入 Windows 版 Codex，保留聊天操作。
+将 Folia 原版播放器、歌词动画和动态背景接入 Windows 版 Codex，保留聊天操作。
 
-## 安装使用
+本仓库仅提供完整源码。让你自己电脑上的 Codex 读取仓库并完成本地安装，运行环境和程序在本机准备。
 
-安装程序适用于 Windows x64，需要已安装官方 Codex。运行安装器后，从桌面 **Codex Folia 背景** 打开，并登录自己的 Codex 和音乐账号。安装器自带 Node.js，使用者无需安装开发环境。
+## 让 Codex 安装到本机
 
-安装包作为 GitHub Releases 附件发布。此仓库保存展开的全部应用源码和构建脚本，运行环境、依赖和构建产物通过脚本准备。
+把仓库地址和下面这段话发给你的 Codex：
+
+> 请阅读这个仓库的 AGENTS.md 和 docs/INSTALLATION.md，从源码安装 Codex Folia 到本机。自动识别已安装的 Codex，复用本机 Node.js 24 和 npm；缺少环境时准备官方工具链。使用 Install-Local.ps1 安装到我选择的文件夹，并创建带 Folia 图标的桌面快捷方式。保留现有 Codex 窗口、账号、聊天记录和用户配置，不修改 WindowsApps 权限。AI 接口地址、模型和密钥留空供我填写。完成后检查快捷方式、图标、本地服务与 Codex 连接，说明实际结果；不要创建安装包或 Releases，不要上传检查报告和个人数据。
+
+需要已安装的官方 Windows 版 Codex。你不必知道它的安装目录；Microsoft Store 版优先由 Windows 的应用启动接口打开。
+
+Codex 会运行类似命令：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-Local.ps1 -InstallDirectory "D:\Program Files\Codex Folia"
+```
+
+Folia 与 Codex 可以安装在不同磁盘。首次安装需联网恢复依赖并构建播放器；本地安装不需要 NSIS。详细步骤见 [安装与启动](docs/INSTALLATION.md)。
+
+## 桌面图标与启动
+
+安装后使用桌面 **Codex Folia 背景**。图标来自程序目录内的 `folia.ico`，不会指向某个 Codex 版本的 EXE。
+
+没有快捷方式时，在本机程序目录运行 `Repair-Shortcuts.cmd`。Store 版会自动使用 Windows 登记的应用入口；只有非标准的未打包版本才可能需要 `Select-Codex.cmd` 手动指定桌面程序。
+
+启动失败会显示具体阶段，提示保存在使用者自己的 `%LOCALAPPDATA%\CodexFolia\launcher-error.log`。让本机 Codex 检查这个提示，不需要修改受保护安装目录的权限。
 
 ## AI 接口由使用者配置
 
-开始菜单打开 **配置 AI**，填写自己使用的 OpenAI 兼容接口：
+开始菜单打开 **配置 AI**，填写自己的 OpenAI 兼容接口：
 
 ```json
-{
-  "cdpPort": 9338,
-  "webPort": 32110,
-  "cacheDirectory": "",
-  "codexPath": "",
-  "ai": {
-    "baseUrl": "",
-    "model": "",
-    "apiKey": ""
-  }
+"ai": {
+  "baseUrl": "",
+  "model": "",
+  "apiKey": ""
 }
 ```
 
-`baseUrl` 为接口地址，`model` 为服务商提供的模型名称，`apiKey` 为使用者自己的密钥。填写后关闭背景，再重新打开。
-
-三个 AI 字段默认均为空。听歌、歌词效果和内置主题可直接使用；AI 主题在配置完成后启用。实际配置写入使用者自己的 `%LOCALAPPDATA%\CodexFolia\settings.json`，应用不会读取 Codex 的 `.env` 或代用其他应用的密钥。
-
-## 安装位置与启动修复
-
-Folia 与 Codex 可以安装在不同磁盘。启动器每次从 Windows 安装包清单、正在运行的 Codex 及程序注册信息查找实际入口，不绑定某个 Codex 版本目录或 `ChatGPT.exe` 文件名。
-
-桌面没有快捷方式时，运行 Folia 安装目录的 `Repair-Shortcuts.cmd`；它会重建并校验桌面和开始菜单入口。自动查找失败时，先正常打开一次 Codex 再重试，或运行 `Select-Codex.cmd` 重新选择 Codex 桌面程序；此选择保存在使用者自己的 `codexPath` 字段，默认留空。
-
-启动失败会显示失败阶段和具体错误，并在使用者自己的 `%LOCALAPPDATA%\CodexFolia\launcher-error.log` 保存提示。安装和修复说明见 [安装与启动](docs/INSTALLATION.md)。
+三个字段默认均为空。配置保存在使用者自己的 `%LOCALAPPDATA%\CodexFolia\settings.json`；程序不读取 Codex 的 `.env`。未配置 AI 时仍可听歌、使用原生效果和内置主题。见 [AI 配置](docs/AI-CONFIGURATION.md)。
 
 ## 功能
 
-- Folia 原版 14 种效果、曲库、搜索、队列、主题和可用音效。
-- 可移动、可收起的右侧原版播放器面板。
-- 主歌词、翻译和和声独立移动、缩放及调节宽高，支持复原。
-- 莫奈左侧歌词、右侧封面；翻译在前景显示并避开聊天输入框。
-- 消息发送期间保持背景布局；可切换到完整播放器。
-- 音乐及下载直接连接；歌曲缓存默认关闭，容量上限为 15 GB。
+- Folia 原版 14 种歌词效果、曲库、搜索、队列、主题及可用音效。
+- 可移动、收起的原版播放器面板。
+- 主歌词、翻译和和声独立移动、缩放、调节宽高及复原。
+- 莫奈左歌词、右封面，翻译避开聊天输入框。
+- 消息发送期间保持背景布局，可切换到完整播放器。
+- 音乐和下载直连；缓存默认关闭，开启后的容量上限为 15 GB。
 
-播放权限和音乐平台功能取决于使用者自己的账号与网络。原生 Electron 专用能力受嵌入 Web 环境限制。
+平台播放权限取决于使用者的账号与网络。原生 Electron 专用能力受嵌入环境限制。
 
-## 项目结构
+## 源码结构
 
-| 目录 | 内容 |
+| 路径 | 内容 |
 | --- | --- |
-| `source/folia/` | 展开的完整 Folia 源码、嵌入修改、测试及构建配置 |
-| `app/` | 接入层源码、启动器、本地后端与空白配置样例 |
-| `packaging/` | Windows NSIS 安装器、运行环境准备和源码归档脚本 |
-| `scripts/` | GitHub 上传候选文件的隐私与体积检查 |
-| `docs/` | AI 配置及发布说明 |
+| `Install-Local.ps1` | 在本机准备程序并创建快捷方式 |
+| `Build.ps1` | 播放器资源构建，支持仅准备本地程序 |
+| `source/folia/` | 展开的 Folia 源码、嵌入修改及原版测试 |
+| `app/` | 接入脚本、启动器、本地图标及空白配置样例 |
+| `packaging/` | 运行环境准备、源码归档与历史打包工具 |
+| `scripts/` | 本地检查和 Windows 集成测试 |
+| `docs/` | 安装、AI 配置和源码发布说明 |
 
-上游为 [chthollyphile/folia-major](https://github.com/chthollyphile/folia-major)，基线版本 0.7.19，提交 `a75748272c6dfa060edf4bbae709c49f0be8a68e`。上游 Git 历史未复制进本仓库。
+检查报告只保存在本地，由 `.gitignore` 排除。账号、密钥、登录、日志和缓存不进入源码仓库。见 [发布约定](docs/PUBLISHING.md)。
 
-## 从源码构建
+## 数据与更新
 
-开发环境需要 Windows x64、Node.js 24、npm 和 NSIS 3。首次恢复依赖需要网络。
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1 -NsisPath "NSIS目录\makensis.exe"
-```
-
-脚本恢复应用和接入层依赖，生成两种播放器资源、对应源码归档及 Windows 安装器。安装器使用固定版本的 Node.js 24.18.0；若本机已有同版本就复用，否则从 Node.js 官方站点下载并验证归档校验码。输出在 `dist/`。
-
-```powershell
-node .\scripts\check-public.mjs
-```
-
-此命令检查待提交源码中的敏感文件、常见凭据、AI 默认值和 GitHub 文件体积限制。`--check-local` 还会在本机内存中比对本地用户名、全局 Git 身份和 Codex `.env` 中的凭据。生成的检查报告仅保存在本地，已由 `.gitignore` 排除，不提交到仓库或作为发布附件。
-
-## 数据、更新与发布
-
-使用者的登录、设置、日志和缓存保存在安装目录外。程序卸载保留使用者的数据。本接入不改写 Codex 安装包；官方界面或调试接口变化后可能需要适配。
-
-上传前检查见 [发布说明](docs/PUBLISHING.md)。源码、许可证和匿名项目提交身份已准备好；GitHub 上的发布账号和仓库名称由发布者选择。公开仓库会显示发布账号。
+用户数据保存在程序目录之外。更新时保留用户设置与登录；本接入不改写 Codex 安装包。官方界面或调试接口改变后，接入仍可能需要适配。
 
 ## 许可
 
-Folia 和本接入修改按 AGPL-3.0 分发，见 [LICENSE](LICENSE)。Node.js、音乐后端依赖和其他第三方组件保留各自许可，见 `app/licenses/` 及依赖包中的许可文件。发布时保留完整对应源码与许可。
+上游为 [chthollyphile/folia-major](https://github.com/chthollyphile/folia-major)，基线 0.7.19、提交 `a75748272c6dfa060edf4bbae709c49f0be8a68e`。Folia、本地图标和本接入修改按 AGPL-3.0 分发，见 [LICENSE](LICENSE)。第三方组件保留各自许可，见 `app/licenses/`。
 
 这是独立社区接入项目。
